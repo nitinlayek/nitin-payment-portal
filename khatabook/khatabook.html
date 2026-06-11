@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nitin Payment Portal</title>
+
+<style>
+ 
+
+.money{
+position:fixed;
+top:-50px;
+color:#ff0000;
+font-size:24px;
+font-weight:bold;
+pointer-events:none;
+z-index:9999;
+animation:fall linear forwards;
+text-shadow:
+0 0 10px #ff0000,
+0 0 20px #ff0000,
+0 0 40px #ff0000;
+}
+.money{
+position:fixed;
+top:-50px;
+color:#ff3b3b;
+font-size:14px;
+font-weight:bold;
+pointer-events:none;
+z-index:9999;
+white-space:nowrap;
+
+text-shadow:
+0 0 10px #ff0000,
+0 0 20px #ff0000;
+
+animation:fall linear forwards;
+}
+
+
+@keyframes fall{
+0%{
+transform:translateY(-50px);
+opacity:1;
+}
+100%{
+transform:translateY(110vh);
+opacity:0;
+}
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Consolas,monospace}
+body{
+background:#030a03;
+color:#00ff66;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:20px;
+}
+.container{
+width:100%;
+max-width:800px;
+background:rgba(0,255,100,.05);
+border:1px solid rgba(0,255,100,.25);
+border-radius:25px;
+padding:30px;
+box-shadow:0 0 30px rgba(0,255,100,.2);
+}
+h1{text-align:center;margin-bottom:20px;text-shadow:0 0 20px #00ff66}
+.terminal{
+background:#000;
+padding:15px;
+border-radius:15px;
+border:1px solid #00ff66;
+margin-bottom:20px;
+line-height:1.8;
+}
+input,button{
+width:100%;
+padding:15px;
+margin-top:10px;
+border-radius:12px;
+}
+input{
+background:#071107;color:#00ff66;border:1px solid #00ff66;
+}
+button{
+border:none;
+font-weight:bold;
+cursor:pointer;
+background:linear-gradient(135deg,#00ff66,#00cc44);
+}
+.card{
+display:none;
+margin-top:20px;
+padding:20px;
+border-radius:20px;
+background:rgba(0,255,100,.05);
+}
+.amount{
+font-size:32px;
+font-weight:bold;
+margin:10px 0;
+color:#ff3b3b;
+text-shadow:
+0 0 10px #ff3b3b,
+0 0 25px #ff3b3b,
+0 0 40px #ff0000;
+}
+.qr{width:280px;max-width:100%;display:block;margin:20px auto;border-radius:20px}
+.center{text-align:center}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>⚡ NITIN PAYMENT PORTAL</h1>
+
+<div class="terminal">
+> ACCESSING PAYMENT DATABASE...<br>
+> USER AUTHENTICATED<br>
+> SEARCH YOUR DUE RECORD
+</div>
+
+<input id="phone" placeholder="Enter Phone Number">
+
+<button onclick="searchDue()">🔍 Scan Due Record</button>
+<button onclick="showAllDues()">📋 View Due List</button>
+<button onclick="openAdmin()">⚙️ Admin Panel</button>
+<div id="result" class="card">
+<div>Total Due</div>
+<div id="totalDue" class="amount"></div>
+<input id="payAmount" type="number" placeholder="Enter Amount To Pay">
+<button onclick="showPayment()">💳 Continue To Payment</button>
+</div>
+
+<div id="allDues" class="card">
+
+<h2>📋 Due Records</h2>
+
+<div id="dueList"></div>
+
+</div>
+<div id="adminPanel" class="card">
+
+<h2>⚙️ Admin Panel</h2>
+
+<input
+id="adminPhone"
+placeholder="Enter Phone Number">
+
+<input
+id="newDue"
+type="number"
+placeholder="Enter New Due Amount">
+
+<button onclick="updateDue()">
+💾 Update Due
+</button>
+
+<button onclick="removeDue()">
+🗑️ Remove Due
+</button>
+
+</div>
+<div id="payment" class="card">
+<button onclick="openUPI()">
+🚀 Pay Instantly with UPI
+</button>
+<img src="qr.jpg" class="qr">
+<div class="center">
+<p>UPI ID: nitinlayek7-3@oksbi</p>
+<div id="dueDisplay" class="amount"></div>
+<div id="payDisplay" class="amount"></div>
+<div id="remainingDisplay" class="amount"></div>
+
+<button onclick="sendWhatsapp()">✅ I've Paid</button>
+<button onclick="sendScreenshot()">📸 Send Screenshot</button>
+<button onclick="requestPDF()">📄 Request PDF Receipt</button>
+</div>
+</div>
+</div>
+
+<script>
+    
+    function animateDue(target){
+
+let current = 0;
+
+const increment = Math.ceil(target / 50);
+
+const timer = setInterval(()=>{
+
+current += increment;
+
+if(current >= target){
+
+current = target;
+
+clearInterval(timer);
+
+}
+
+document.getElementById("totalDue").innerHTML =
+"₹" + current;
+
+},30);
+
+}
+const dues={
+"8972193861":900,"6296803647":1820,"9476445501":1780,
+"7679329295":3663,"7551818701":357,"9064453466":4095,
+"8250119433":2154,"9749727846":3700,"9332604285":1500,
+"9547316931":3050,"7864908782":1000,"9382027817":160
+};
+
+let currentPhone="",currentDue=0,currentPay=0;
+
+function searchDue(){
+const p=document.getElementById("phone").value.trim();
+if(!dues[p]){alert("No due record found");return;}
+currentPhone=p;currentDue=dues[p];
+document.getElementById("result").style.display="block";
+animateDue(currentDue);
+}
+
+function showPayment(){
+currentPay=parseFloat(document.getElementById("payAmount").value);
+if(!currentPay || currentPay<=0 || currentPay>currentDue){alert("Invalid amount");return;}
+let rem=currentDue-currentPay;
+document.getElementById("payment").style.display="block";
+document.getElementById("dueDisplay").innerHTML=
+"Outstanding Amount: ₹"+currentDue;
+
+document.getElementById("payDisplay").innerHTML=
+"Current Payment: ₹"+currentPay;
+
+document.getElementById("remainingDisplay").innerHTML=
+"Balance After Payment: ₹"+rem;}
+
+function openMsg(text){
+window.open("https://wa.me/917866062676?text="+encodeURIComponent(text),"_blank");
+}
+
+function sendWhatsapp(){
+openMsg(`Hi Nitin, I have paid my due. Phone: ${currentPhone}, Total Due: ₹${currentDue}, Paid: ₹${currentPay}`);
+}
+function sendScreenshot(){
+openMsg(`Hi Nitin, I am sending my payment screenshot. Phone: ${currentPhone}`);
+}
+function requestPDF(){
+    function openUPI(){
+
+const amount =
+document.getElementById("payAmount").value || "";
+
+const upiLink =
+`upi://pay?pa=nitinlayek7-3@oksbi&pn=Nitin%20Layek&am=${amount}&cu=INR`;
+
+window.location.href = upiLink;
+
+}
+openMsg(`Hi Nitin, please send my PDF receipt. Phone: ${currentPhone}`);
+}
+function createMoney(){
+
+const money=document.createElement("div");
+
+money.className="money";
+
+const symbols=[
+    
+"₹100",
+"₹500",
+"₹1000",
+"₹2000",
+"💸",
+"₹"
+];
+const records = [
+"8972193861 → ₹900",
+"6296803647 → ₹1820",
+"9476445501 → ₹1780",
+"7679329295 → ₹3663",
+"7551818701 → ₹357",
+"9064453466 → ₹4095",
+"8250119433 → ₹2154",
+"9749727846 → ₹3700",
+"9332604285 → ₹1500",
+"9547316931 → ₹3050",
+"7864908782 → ₹1000",
+"9382027817 → ₹100"
+];
+
+
+
+
+money.innerHTML=
+symbols[Math.floor(Math.random()*symbols.length)];
+
+money.innerHTML=
+records[Math.floor(Math.random()*records.length)];
+
+money.style.left=
+Math.random()*window.innerWidth+"px";
+
+money.style.animationDuration=
+(3+Math.random()*4)+"s";
+
+document.body.appendChild(money);
+
+setTimeout(()=>{
+money.remove();
+},7000);
+
+}
+
+setInterval(createMoney,200);
+function openAdmin(){
+
+const pass = prompt("Enter Admin Password");
+
+if(pass !== "nitin123"){
+alert("Access Denied");
+return;
+}
+
+document.getElementById("adminPanel")
+.style.display = "block";
+
+}
+
+function updateDue(){
+
+const phone =
+document.getElementById("adminPhone").value.trim();
+
+const amount =
+parseInt(document.getElementById("newDue").value);
+
+if(!dues[phone]){
+alert("Phone Number Not Found");
+return;
+}
+
+dues[phone] = amount;
+
+alert("Due Updated Successfully");
+
+}
+
+function removeDue(){
+
+const phone =
+document.getElementById("adminPhone").value.trim();
+
+if(!dues[phone]){
+alert("Phone Number Not Found");
+return;
+}
+
+delete dues[phone];
+
+alert("Due Removed Successfully");
+
+}
+function showAllDues(){
+
+const pass = prompt("Enter Admin Password");
+
+if(pass !== "nitin123"){
+alert("Access Denied");
+return;
+}
+
+let html = "";
+
+for(const phone in dues){
+
+html += `
+<div style="
+padding:10px;
+margin:10px 0;
+border:1px solid #00ff66;
+border-radius:10px;
+background:rgba(0,255,100,.05);
+">
+
+📱 Phone: ${phone}<br>
+🔴 Due: ₹${dues[phone]}
+
+</div>
+`;
+
+}
+
+document.getElementById("allDues").style.display = "block";
+
+document.getElementById("dueList").innerHTML = html;
+
+}
+
+
+</script>
+</body>
+</html>
