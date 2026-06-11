@@ -61,12 +61,13 @@ align-items:center;
 padding:20px;
 }
 .container{
-width:100%;
-max-width:800px;
+width:95%;
+max-width:500px;
+margin:auto;
 background:rgba(0,255,100,.05);
 border:1px solid rgba(0,255,100,.25);
 border-radius:25px;
-padding:30px;
+padding:20px;
 box-shadow:0 0 30px rgba(0,255,100,.2);
 }
 h1{text-align:center;margin-bottom:20px;text-shadow:0 0 20px #00ff66}
@@ -85,12 +86,22 @@ margin-top:10px;
 border-radius:12px;
 }
 input{
-background:#071107;color:#00ff66;border:1px solid #00ff66;
+background:#071107;
+color:#00ff66;
+border:1px solid #00ff66;
+padding:18px;
+font-size:18px;
 }
+/* background:#071107;color:#00ff66;border:1px solid #00ff66;
+} */
 button{
-border:none;
+width:100%;
+padding:18px;
+font-size:18px;
 font-weight:bold;
 cursor:pointer;
+border:none;
+border-radius:15px;
 background:linear-gradient(135deg,#00ff66,#00cc44);
 }
 .card{
@@ -101,7 +112,7 @@ border-radius:20px;
 background:rgba(0,255,100,.05);
 }
 .amount{
-font-size:32px;
+font-size:45px;
 font-weight:bold;
 margin:10px 0;
 color:#ff3b3b;
@@ -112,6 +123,37 @@ text-shadow:
 }
 .qr{width:280px;max-width:100%;display:block;margin:20px auto;border-radius:20px}
 .center{text-align:center}
+@media(max-width:600px){
+
+.container{
+width:95%;
+padding:20px;
+}
+
+h1{
+font-size:28px;
+}
+
+.amount{
+font-size:38px;
+}
+
+button{
+font-size:18px;
+padding:18px;
+}
+
+input{
+font-size:18px;
+padding:18px;
+}
+
+.qr{
+width:100%;
+max-width:320px;
+}
+
+}
 </style>
 </head>
 <body>
@@ -251,7 +293,10 @@ function sendScreenshot(){
 openMsg(`Hi Nitin, I am sending my payment screenshot. Phone: ${currentPhone}`);
 }
 function requestPDF(){
-    function openUPI(){
+openMsg(`Hi Nitin, please send my PDF receipt. Phone: ${currentPhone}`);
+}
+
+function openUPI(){
 
 const amount =
 document.getElementById("payAmount").value || "";
@@ -261,8 +306,6 @@ const upiLink =
 
 window.location.href = upiLink;
 
-}
-openMsg(`Hi Nitin, please send my PDF receipt. Phone: ${currentPhone}`);
 }
 function createMoney(){
 
